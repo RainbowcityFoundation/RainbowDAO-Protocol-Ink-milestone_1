@@ -1,5 +1,5 @@
 # RainbowDAO-Protocol-ink-Phase-1
-##Contract introduction
+## Contract introduction
 - Kernel: controls the most basic modules, route_manage, authority_management, and role_manage of Rainbow Dao.
   At the same time, it is the administrator of route_manage contract, authority_management contract and role_manage contract.
   The above three contracts can only be called through the kernel.
