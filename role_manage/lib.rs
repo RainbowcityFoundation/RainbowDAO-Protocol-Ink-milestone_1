@@ -140,7 +140,6 @@ mod role_manage {
         /// Imports `ink_lang` so we can use `#[ink::test]`.
         use ink_lang as ink;
 
-        /// You need to get the hash from  RouteManage,authority_management and RoleManage contract
         #[ink::test]
         fn add_role_works() {
             let accounts =

@@ -129,7 +129,7 @@ mod users_manage {
         /// Imports `ink_lang` so we can use `#[ink::test]`.
         use ink_lang as ink;
 
-        /// You need to get the hash from  RouteManage,authority_management and RoleManage contract
+
         #[ink::test]
         fn join_works() {
             let accounts =

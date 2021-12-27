@@ -25,7 +25,6 @@ mod authority_management {
     }
 
     impl AuthorityManagement {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new() -> Self {
             let instance = Self {
@@ -79,7 +78,6 @@ mod authority_management {
         /// Imports `ink_lang` so we can use `#[ink::test]`.
         use ink_lang as ink;
 
-        /// You need to get the hash from  RouteManage,authority_management and RoleManage contract
         #[ink::test]
         fn init_works() {
             let accounts =
