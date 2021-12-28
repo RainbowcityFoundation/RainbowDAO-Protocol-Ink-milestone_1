@@ -113,7 +113,10 @@ mod users_manage {
             }
             user_vec
         }
-
+        #[ink(message)]
+        pub fn get_user_info(&self,user:AccountId) -> User {
+            self.user_info.get(&user).unwrap().clone()
+        }
         fn insert_user_child(&mut self,user:AccountId,child:AccountId) -> bool {
             let mut user_info = self.user_info.get_mut(&user).unwrap().clone();
             user_info.childs.push(child);

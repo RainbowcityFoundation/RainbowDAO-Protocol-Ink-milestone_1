@@ -15,7 +15,8 @@ mod multisig_factory {
     pub struct MultisigFactory {
         /// Stores a single `bool` value on the storage.
         multisign:StorageHashMap<u64,AccountId>,
-        index:u64
+        index:u64,
+        user_multisign:StorageHashMap<AccountId,Vec<AccountId>>,
     }
 
     impl MultisigFactory {
@@ -24,7 +25,8 @@ mod multisig_factory {
         pub fn new() -> Self {
             Self {
                 multisign:StorageHashMap::new(),
-                index:0
+                index:0,
+                user_multisign:StorageHashMap::new()
             }
         }
         #[ink(message)]
@@ -46,7 +48,15 @@ mod multisig_factory {
             assert_eq!(self.index + 1 > self.index, true);
             self.multisign.insert(self.index, contract_addr);
             self.index += 1;
+            let user_mul = self.user_multisign.entry(self.env().caller()).or_insert(Vec::new());
+            user_mul.push(contract_addr);
             contract_addr
+        }
+
+        #[ink(message)]
+        pub fn user_multisig(&self,user:AccountId) -> Vec<AccountId> {
+            let list =  self.user_multisign.get(&user).unwrap().clone();
+            list
         }
     }
 }
