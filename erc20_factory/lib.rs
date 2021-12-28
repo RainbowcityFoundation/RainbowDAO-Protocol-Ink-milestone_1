@@ -9,18 +9,23 @@ mod erc20_factory {
     use route_manage::RouteManage;
     use alloc::string::String;
     use ink_prelude::vec::Vec;
+    use ink_storage::{collections::HashMap as StorageHashMap, };
     const CONTRACT_INIT_BALANCE: u128 = 1000 * 1_000_000_000_000;
 
     #[ink(storage)]
     pub struct Erc20Factory {
-        route_addr:AccountId
+        route_addr:AccountId,
+        length:u128,
+        token_list:StorageHashMap<u128,AccountId>
     }
 
     impl Erc20Factory {
         #[ink(constructor)]
         pub fn new(route_addr:AccountId) -> Self {
             Self {
-                route_addr
+                route_addr,
+                length:0,
+                token_list:StorageHashMap::new()
             }
         }
         #[ink(message)]
@@ -46,12 +51,29 @@ mod erc20_factory {
             if income_category_addr != AccountId::default()  {
                 self.send_income_fee(income_category_addr);
             }
+            self.token_list.insert(self.length,contract_addr);
+            self.length+=1;
             contract_addr
         }
-
-
-
-
+        #[ink(message)]
+        pub fn get_length(&self) -> u128 {
+            self.length
+        }
+        #[ink(message)]
+        pub fn get_token_by_index(&self,index:u128) -> AccountId {
+            self.token_list.get(&index).copied().unwrap_or(AccountId::default())
+        }
+        #[ink(message)]
+        pub fn list_token(&self) -> Vec<AccountId> {
+            let mut token_vec = Vec::new();
+            let mut iter = self.token_list.values();
+            let mut token = iter.next();
+            while token.is_some() {
+                token_vec.push(token.unwrap().clone());
+                token = iter.next();
+            }
+            token_vec
+        }
         fn send_income_fee(&mut self,income_category_addr:AccountId) -> bool {
             let mut income_instance: IncomeCategory = ink_env::call::FromAccountId::from_account_id(income_category_addr);
             let category =  income_instance.get_category(String::from("erc20"));

@@ -118,7 +118,7 @@ mod erc20 {
         pub fn new(initial_supply: Balance,name:String,symbol:String,decimals:u8,owner:AccountId) -> Self {
             let mut balances = StorageHashMap::new();
             balances.insert(owner, initial_supply);
-            let    instance = Self {
+            let  instance = Self {
                 total_supply: Lazy::new(initial_supply),
                 balances,
                 allowances: StorageHashMap::new(),
@@ -130,13 +130,13 @@ mod erc20 {
                 num_check_points:StorageHashMap::new(),
                 delegates:StorageHashMap::new(),
             };
+
             Self::env().emit_event(Transfer {
                 from: None,
                 to: Some(owner),
                 value: initial_supply,
             });
             instance
-
         }
         #[ink(message)]
         pub fn query_info(&self) -> TokenInfo {
@@ -250,11 +250,7 @@ mod erc20 {
             let to_balance = self.balance_of(to);
             self.balances.insert(to, to_balance + value);
 
-            self.move_delegates(
-                self.delegates.get(&from).unwrap_or(&AccountId::default()).clone() ,
-                self.delegates.get(&to).unwrap_or(&AccountId::default()).clone(),
-                value
-            );
+            self.move_delegates(from, to, value);
 
             self.env().emit_event(Transfer {
                 from: Some(from),
@@ -347,15 +343,23 @@ mod erc20 {
             if src_rep != dst_rep && amount > 0 {
                 if src_rep != AccountId::default() {
                     let src_rep_num =  self.num_check_points.get(&src_rep).unwrap_or(&0).clone();
-                    let check_point_src:Checkpoint = self.check_points.get(&(src_rep,src_rep_num - 1)).unwrap_or(&default_checkpoint).clone();
-                    let src_rep_old = if src_rep_num > 0 {check_point_src.votes}  else { 0 } ;
+                    let src_rep_old = if src_rep_num > 0 {
+                        let check_point_src:Checkpoint = self.check_points.get(&(src_rep,src_rep_num - 1)).unwrap_or(&default_checkpoint).clone();
+                        check_point_src.votes
+                    }  else {
+                        0
+                    } ;
                     let src_rep_new =  src_rep_old - amount;
                     self.write_check_point(src_rep,src_rep_num,src_rep_old,src_rep_new);
                 }
                 if dst_rep != AccountId::default() {
                     let dst_rep_num = self.num_check_points.get(&dst_rep).copied().unwrap_or(0);
-                    let check_point_dst:Checkpoint = self.check_points.get(&(dst_rep,dst_rep_num - 1)).unwrap_or(&default_checkpoint).clone();
-                    let dst_rep_old = if dst_rep_num > 0 {check_point_dst.votes}  else { 0 } ;
+                    let dst_rep_old = if dst_rep_num > 0 {
+                        let check_point_dst:Checkpoint = self.check_points.get(&(dst_rep,dst_rep_num - 1)).unwrap_or(&default_checkpoint).clone();
+                        check_point_dst.votes
+                    }  else {
+                        0
+                    } ;
                     let dsp_rep_new =  dst_rep_old + amount;
                     self.write_check_point(dst_rep,dst_rep_num,dst_rep_old,dsp_rep_new);
                 }

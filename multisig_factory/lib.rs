@@ -38,7 +38,7 @@ mod multisig_factory {
             version:u8
         ) -> AccountId {
             let salt = version.to_le_bytes();
-            let instance_params = Multisig::new(owners,min_sign_count)
+            let instance_params = Multisig::new(owners.clone(),min_sign_count)
                 .endowment(CONTRACT_INIT_BALANCE)
                 .code_hash(multisig_hash)
                 .salt_bytes(salt)
@@ -48,8 +48,10 @@ mod multisig_factory {
             assert_eq!(self.index + 1 > self.index, true);
             self.multisign.insert(self.index, contract_addr);
             self.index += 1;
-            let user_mul = self.user_multisign.entry(self.env().caller()).or_insert(Vec::new());
-            user_mul.push(contract_addr);
+            for i in &owners {
+                let user_mul = self.user_multisign.entry(i.clone()).or_insert(Vec::new());
+                user_mul.push(contract_addr);
+            }
             contract_addr
         }
 
