@@ -35,8 +35,8 @@ mod multisig_factory {
             multisig_hash:Hash,
             owners: Vec<AccountId>,
             min_sign_count: i32,
-            version:u8
         ) -> AccountId {
+            let version =  self.index;
             let salt = version.to_le_bytes();
             let instance_params = Multisig::new(owners.clone(),min_sign_count)
                 .endowment(CONTRACT_INIT_BALANCE)

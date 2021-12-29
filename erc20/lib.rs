@@ -118,7 +118,7 @@ mod erc20 {
         pub fn new(initial_supply: Balance,name:String,symbol:String,decimals:u8,owner:AccountId) -> Self {
             let mut balances = StorageHashMap::new();
             balances.insert(owner, initial_supply);
-            let  instance = Self {
+            let mut instance = Self {
                 total_supply: Lazy::new(initial_supply),
                 balances,
                 allowances: StorageHashMap::new(),
@@ -136,6 +136,7 @@ mod erc20 {
                 to: Some(owner),
                 value: initial_supply,
             });
+            instance.move_delegates(AccountId::default(), owner, initial_supply);
             instance
         }
         #[ink(message)]
@@ -334,10 +335,18 @@ mod erc20 {
             true
         }
         #[ink(message)]
+        pub fn get_user_delegates(&self,delegator:AccountId) -> AccountId {
+            self.delegates.get(&delegator).unwrap_or(&AccountId::default()).clone()
+        }
+        #[ink(message)]
         pub fn get_user_num_check_points(&self,user:AccountId) -> u32 {
             self.num_check_points.get(&user).unwrap_or(&0).clone()
         }
-
+        #[ink(message)]
+        pub fn get_user_check_points(&self,account:AccountId,checkpoint:u32) -> Checkpoint {
+            let default_checkpoint = Checkpoint{from_block:0, votes:0};
+            self.check_points.get(&(account,checkpoint)).unwrap_or(&default_checkpoint).clone()
+        }
         fn move_delegates(&mut self,src_rep:AccountId,dst_rep:AccountId,amount:u128) -> bool {
             let default_checkpoint = Checkpoint{from_block:0, votes:0};
             if src_rep != dst_rep && amount > 0 {
@@ -369,7 +378,10 @@ mod erc20 {
 
         fn write_check_point(&mut self,delegatee:AccountId,n_checkpoints:u32,old_votes:u128,new_votes:u128) -> bool {
             let block_number = self.env().block_number();
-            let check_point:Checkpoint = self.check_points.get(&(delegatee,n_checkpoints - 1)).unwrap().clone();
+            let mut check_point = Checkpoint{from_block:0, votes:0};
+            if n_checkpoints > 0 {
+                 check_point = self.check_points.get(&(delegatee,n_checkpoints - 1)).unwrap().clone();
+            }
             if  n_checkpoints>0 && check_point.from_block == block_number  {
                 self.check_points.insert((delegatee, n_checkpoints - 1), Checkpoint{from_block:check_point.from_block,votes:new_votes});
             } else {
