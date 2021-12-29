@@ -122,20 +122,18 @@ mod govnance_dao {
         voting_delay: u32,
         voting_period: u32,
         proposal_length: u64,
-        route_addr: AccountId,
         rbd_addr: AccountId,
     }
 
     impl GovnanceDao {
         #[ink(constructor)]
-        pub fn new(route_addr: AccountId, rbd_addr: AccountId) -> Self {
+        pub fn new(rbd_addr: AccountId) -> Self {
             Self {
                 owner: Self::env().caller(),
                 proposals: StorageHashMap::new(),
                 voting_delay: 1,
                 voting_period: 259200, //3 days
                 proposal_length: 0,
-                route_addr,
                 rbd_addr,
             }
         }
@@ -207,20 +205,17 @@ mod govnance_dao {
             proposal.executed = true;
             true
         }
-        // #[ink(message)]
-        // pub fn get_contract_addr(&self,target_name:String) ->AccountId {
-        //     let route_instance: RouteManage = ink_env::call::FromAccountId::from_account_id(self.route_addr);
-        //     return route_instance.query_route_by_name(target_name);
-        // }
+
         #[ink(message)]
         pub fn cast_vote(&mut self, proposal_id: u64, support: bool) -> bool {
             let caller = Self::env().caller();
+            let default_receipts = Receipt{has_voted: false, support: false, votes: 0};
             assert!(self.state(proposal_id) == ProposalState::Active);
             let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
-            let mut receipts = proposal.receipts.get(&caller).unwrap().clone();
+            let mut receipts = proposal.receipts.get(&caller).unwrap_or(&default_receipts).clone();
             assert!(receipts.has_voted == false);
             let erc20_instance: Erc20 = ink_env::call::FromAccountId::from_account_id(self.rbd_addr);
-            let votes = erc20_instance.get_prior_votes(caller, proposal.start_block);
+            let votes = erc20_instance.get_current_votes(caller);
             if support {
                 proposal.for_votes += votes;
             } else {
@@ -229,7 +224,10 @@ mod govnance_dao {
             receipts.has_voted = true;
             receipts.support = support;
             receipts.votes = votes;
-
+            let mut temporary_receipts = BTreeMap::new();
+            temporary_receipts.insert(caller,receipts);
+            proposal.receipts = temporary_receipts;
+            self.proposals.insert(proposal_id,proposal);
             true
         }
         #[ink(message)]

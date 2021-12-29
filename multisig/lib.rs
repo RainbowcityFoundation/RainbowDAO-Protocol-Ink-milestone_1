@@ -28,6 +28,7 @@ mod multisig {
     )]
     #[derive(Debug)]
     pub struct Transaction {
+        id:u64,
         status: bool,
         to: AccountId,
         amount: u64,
@@ -72,6 +73,7 @@ mod multisig {
             assert_eq!(self.env().balance() >= amount.into(), true);
             self.transactions.insert(self.transaction_idx,
                 Transaction{
+                    id:self.transaction_idx,
                     status: false,
                     to,
                     amount,
@@ -129,6 +131,17 @@ mod multisig {
                 role = iter.next();
             }
             manager_list
+        }
+        #[ink(message)]
+        pub fn get_sign_list(&self) -> Vec<Transaction> {
+            let mut sign_list = Vec::new();
+            let mut iter = self.transactions.values();
+            let mut sign = iter.next();
+            while sign.is_some() {
+                sign_list.push(sign.unwrap().clone());
+                sign = iter.next();
+            }
+            sign_list
         }
         fn ensure_caller_is_owner(&self) -> bool{
             self.owner == self.env().caller()
