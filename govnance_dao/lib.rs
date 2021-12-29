@@ -224,7 +224,7 @@ mod govnance_dao {
             receipts.has_voted = true;
             receipts.support = support;
             receipts.votes = votes;
-            let mut temporary_receipts = BTreeMap::new();
+            let mut temporary_receipts = proposal.receipts;
             temporary_receipts.insert(caller,receipts);
             proposal.receipts = temporary_receipts;
             self.proposals.insert(proposal_id,proposal);
