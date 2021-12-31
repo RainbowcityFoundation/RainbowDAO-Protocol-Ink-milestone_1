@@ -1,5 +1,5 @@
-# RainbowDAO-Protocol-ink-Phase-1
-##Contract introduction
+# RainbowDAO-Protocol-Ink-milestone_1
+## Contract introduction
 - Kernel: controls the most basic modules, route_manage, authority_management, and role_manage of Rainbow Dao.
   At the same time, it is the administrator of route_manage contract, authority_management contract and role_manage contract.
   The above three contracts can only be called through the kernel.
@@ -58,5 +58,3 @@ To build the WASM of your contract and metadata, You can enter any folder and en
 ```bash
 cargo +nightly contract build
 ```
-
-
