@@ -49,6 +49,10 @@ mod role_manage {
         pub fn add_role(&mut self, name: String) -> bool {
             self.only_core(Self::env().caller());
             assert_eq!(self.index + 1 > self.index, true);
+            let list = self.list_roles();
+            for i in  list{
+                assert_eq!(i != name, true);
+            }
             self.role_map.insert(self.index, name);
             self.index += 1;
             true
@@ -68,7 +72,7 @@ mod role_manage {
 
         #[ink(message)]
         pub fn query_role_by_index(&self, index: u64) -> String {
-            self.role_map.get(&index).unwrap().clone()
+            self.role_map.get(&index).unwrap_or(&String::default()).clone()
         }
 
 

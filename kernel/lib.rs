@@ -107,7 +107,7 @@ mod kernel {
                 .params();
             let init_authority_result = ink_env::instantiate_contract(&authority_management);
             let authority_management_addr = init_authority_result.expect(
-                "failed at instantiating the `TemplateManager` contract"
+                "failed at instantiating the `authority_management` contract"
             );
             let authority_contract_instance = ink_env::call::FromAccountId::from_account_id(authority_management_addr);
             self.authority_management = Some(authority_contract_instance);
@@ -120,9 +120,9 @@ mod kernel {
                 .params();
             let init_route_result = ink_env::instantiate_contract(&route_manage);
             let route_manage_addr = init_route_result.expect(
-                "failed at instantiating the `TemplateManager` contract"
+                "failed at instantiating the `route_manage` contract"
             );
-            let route_contract_instance = ink_env::call::FromAccountId::from_account_id(role_manage_addr);
+            let route_contract_instance = ink_env::call::FromAccountId::from_account_id(route_manage_addr);
             self.route_manage = Some(route_contract_instance);
             self.route_manage_addr = route_manage_addr;
             self.init = true;
@@ -142,9 +142,8 @@ mod kernel {
 
         #[ink::test]
         fn init_works() {
-            // let kernel = Kernel::new();
-            // kernel.init(1,authority_contract_instance,authority_management_hash,route_manage_hash);
-            // assert!(kernel.get_role_addr() != AccountId::default());
+            let kernel = Kernel::new();
+            assert!(kernel.get_role_addr() == AccountId::default());
         }
     }
 }

@@ -41,17 +41,22 @@ mod route_manage {
             true
         }
 
-        // #[ink(message)]
-        // pub fn list_route(&self) -> Vec<String> {
-        //     let mut route_vec = Vec::new();
-        //     let mut iter = self.route_map.values();
-        //     let mut route = iter.next();
-        //     while route.is_some() {
-        //         route_vec.push(route.unwrap().clone());
-        //         route = iter.next();
-        //     }
-        //     route_vec
-        // }
+        #[ink(message)]
+        pub fn list_route(&self) -> BTreeMap<String,AccountId> {
+            // let mut route_vec = Vec::new();
+            let mut iter = self.route_map.values();
+            let mut key_iter = self.route_map.keys();
+            let mut route = iter.next();
+            let mut name = key_iter.next();
+            let mut hash_map = BTreeMap::new();
+            while route.is_some() {
+                hash_map.insert(name.unwrap().clone(),route.unwrap().clone());
+                // route_vec.push(route.unwrap().clone());
+                route = iter.next();
+                name = key_iter.next();
+            }
+            hash_map
+        }
 
         #[ink(message)]
         pub fn query_route_by_name(&self, name: String) -> AccountId {
