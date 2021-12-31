@@ -42,8 +42,8 @@ npm install -g binaryen
 First of all you need to clone the repository, run:
 
 ```bash
-git clone https://github.com/RainbowDAO/RainbowDAO-Protocol-ink-Phase-1.git
-cd RainbowDAO-Protocol-ink-Phase-1
+git clone https://github.com/RainbowcityFoundation/RainbowDAO-Protocol-Ink-milestone_1.git
+cd RainbowDAO-Protocol-Ink-milestone_1
 ```
 
 Then, You can enter any folder and enter the following command.

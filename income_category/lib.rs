@@ -52,11 +52,7 @@ mod income_category {
             self.category.insert(name,income);
             true
         }
-        // #[ink(message)]
-        // pub fn set_contract_fee(&mut self,new_owner:AccountId) -> bool {
-        //     self.only_owner(Self::env().caller());
-        //     self.owner = new_owner;
-        // }
+
         #[ink(message)]
 
         pub fn get_category(&mut self,name:String) -> IncomeInfo {
