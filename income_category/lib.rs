@@ -9,6 +9,7 @@ use ink_lang as ink;
 mod income_category {
     use alloc::string::String;
     use ink_prelude::vec::Vec;
+    use ink_prelude::collections::BTreeMap;
     use ink_storage::{
         collections::HashMap as StorageHashMap,
         traits::{
@@ -70,18 +71,24 @@ mod income_category {
             true
         }
 
-        #[ink(message)]
-        pub fn list_category(&self) -> Vec<IncomeInfo> {
-            let mut category_vec = Vec::new();
-            let mut iter = self.category.values();
-            let mut category = iter.next();
-            while category.is_some() {
-                category_vec.push(category.unwrap().clone());
-                category = iter.next();
-            }
-            category_vec
-        }
 
+
+        #[ink(message)]
+        pub fn list_category(&self) -> BTreeMap<String,IncomeInfo> {
+            // let mut route_vec = Vec::new();
+            let mut iter = self.category.values();
+            let mut key_iter = self.category.keys();
+            let mut category = iter.next();
+            let mut name = key_iter.next();
+            let mut hash_map = BTreeMap::new();
+            while category.is_some() {
+                hash_map.insert(name.unwrap().clone(),category.unwrap().clone());
+                // route_vec.push(route.unwrap().clone());
+                category = iter.next();
+                name = key_iter.next();
+            }
+            hash_map
+        }
 
 
         fn only_owner(&self,sender:AccountId) {
