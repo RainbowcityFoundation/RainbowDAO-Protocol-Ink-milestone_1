@@ -262,7 +262,6 @@ mod govnance_dao {
                 ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                     .expect("Cannot get accounts");
             let mut govnance_dao = GovnanceDao::new(
-                AccountId::from([0x01; 32]),
                 AccountId::from([0x01; 32])
             );
             let mut vec = Vec::new();
