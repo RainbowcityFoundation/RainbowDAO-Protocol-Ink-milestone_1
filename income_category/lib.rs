@@ -17,7 +17,10 @@ mod income_category {
             SpreadLayout,
         }
     };
-    /// Indicates whether a transaction is already confirmed or needs further confirmations.
+    /// Charging information
+    /// is_used:it is open
+    /// fee:the fee of this category
+    /// token:Which token is used for charging
     #[derive(scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout)]
     #[cfg_attr(
     feature = "std",
@@ -30,6 +33,9 @@ mod income_category {
        pub fee: u128,
        pub token: AccountId
     }
+    /// All charging types of rainbow agreement are set here
+    /// owner:The manager of this contract
+    /// category:HashMap of category name and detail
     #[ink(storage)]
     pub struct IncomeCategory {
         owner:AccountId,
@@ -45,6 +51,9 @@ mod income_category {
                 category: StorageHashMap::new()
             }
         }
+        ///Add a category
+        /// name:category's name
+        /// income:category's info
         #[ink(message)]
         #[ink(selector = 0xDEADBEEF)]
         pub fn save_category(&mut self,name:String,income:IncomeInfo) -> bool {
@@ -53,13 +62,15 @@ mod income_category {
             true
         }
 
+        ///Get a category by name
+        /// name:category's name
         #[ink(message)]
-
         pub fn get_category(&mut self,name:String) -> IncomeInfo {
            self.category.get(&name).unwrap().clone()
         }
 
-
+        /// Change contract administrator
+        /// new_owner:the address of new owner
         #[ink(message)]
         pub fn transfer_owner(&mut self,new_owner:AccountId) -> bool {
             self.only_owner(Self::env().caller());
@@ -68,7 +79,7 @@ mod income_category {
         }
 
 
-
+        /// Show all category
         #[ink(message)]
         pub fn list_category(&self) -> BTreeMap<String,IncomeInfo> {
             // let mut route_vec = Vec::new();

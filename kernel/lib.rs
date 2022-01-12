@@ -13,6 +13,15 @@ mod kernel {
     use authority_management::AuthorityManagement;
     const DAO_INIT_BALANCE: u128 = 1000 * 1_000_000_000_000;
 
+    /// This is the core of the rainbow agreement
+    /// owner:the manager of this contract
+    /// role_manage : the role_manage's instance
+    /// role_manage_addr : the role_manage's address
+    /// route_manage : the route_manage's instance
+    /// route_manage_addr : the route_manage's address
+    /// authority_management : the authority_management's instance
+    /// authority_management_addr : the authority_management's address
+    /// init : Has the contract been activated
     #[ink(storage)]
     pub struct Kernel {
         owner:AccountId,
@@ -40,45 +49,65 @@ mod kernel {
             };
             instance
         }
+        /// Add a role
+        /// name : the name of role
         #[ink(message)]
         pub fn add_role(&mut self, name: String) {
             // self.role_manage.add_role(name);
             self.role_manage.as_mut().unwrap().add_role(name);
 
         }
+        /// Add a privilege for a role
+        /// name : the name of role
+        /// privilege : the name of privilege
         #[ink(message)]
         pub fn role_insert_privilege(&mut self, name:String,privilege:String) {
             // self.role_manage.role_insert_privilege(name,privilege);
             self.role_manage.as_mut().unwrap().role_insert_privilege(name,privilege);
         }
+        /// Add a privilege
+        /// name : the name of privilege
         #[ink(message)]
         pub fn add_privilege(&mut self, name: String) {
             // self.authority_management.add_privilege(name);
             self.authority_management.as_mut().unwrap().add_privilege(name);
         }
+        /// Add a route
+        /// name : the name of route
+        /// value : the address of route
         #[ink(message)]
         pub fn add_route(&mut self, name: String,value: AccountId) {
             // self.route_manage.add_route(name,value);
             self.route_manage.as_mut().unwrap().add_route(name,value);
         }
+        /// Change routing address
+        /// name : the name of route
+        /// value : the address of route
         #[ink(message)]
         pub fn change_route(&mut self, name: String,value: AccountId) {
             // self.route_manage.add_route(name,value);
             self.route_manage.as_mut().unwrap().change_route(name,value);
         }
-
+        /// Get role's address
         #[ink(message)]
         pub fn get_role_addr(&self) -> AccountId {
             self.role_manage_addr
         }
+        /// Get authority_management's address
         #[ink(message)]
         pub fn get_auth_addr(&self) -> AccountId {
             self.authority_management_addr
         }
+        /// Get route's address
         #[ink(message)]
         pub fn get_route_addr(&self) -> AccountId {
             self.route_manage_addr
         }
+        /// Initialize the contract to get the address of other contracts
+        /// version:Random numbers are used to initialize contracts
+        /// role_code_hash:the hash of role contract
+        /// privilege_code_hash:the hash of authority_management contract
+        /// route_code_hash:the hash of route contract
         #[ink(message)]
         pub fn init(
             &mut self,

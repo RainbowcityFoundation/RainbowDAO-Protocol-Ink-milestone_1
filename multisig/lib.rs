@@ -21,6 +21,13 @@ mod multisig {
         },
     };
 
+    /// Execution details
+    /// id:the id of multisig
+    /// status:the status of multisig
+    /// to:Transfer token to an address
+    /// amount:Number of transfers
+    /// signature_count:Number of signatures
+    /// signatures:Details of signature
     #[derive(scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout)]
     #[cfg_attr(
     feature = "std",
@@ -36,7 +43,12 @@ mod multisig {
         signatures: BTreeMap<AccountId, i32>,
     }
 
-
+    /// Sign multiple transfer contracts
+    /// owner : the creator of the contract
+    /// transaction_idx : the index of transaction
+    /// manager:Administrator who needs to sign
+    /// transactions:Execution details
+    /// min_sign_count : Minimum number of signatures
     #[ink(storage)]
     pub struct Multisig {
         owner: AccountId,
@@ -66,6 +78,9 @@ mod multisig {
             }
         }
 
+        /// Create a multi sign transaction
+        /// to:Transfer token to an address
+        /// amount:The number of transfer
         #[ink(message)]
         pub fn creat_transfer(&mut self,to: AccountId ,amount: u64) -> bool {
             self.ensure_caller_is_manager();
@@ -84,7 +99,8 @@ mod multisig {
             self.transaction_idx += 1;
             true
         }
-
+        /// Sign a transaction
+        /// transaction_id:the id of transaction
         #[ink(message)]
         pub fn sign_transaction(&mut self, transaction_id: u64) -> bool {
             self.ensure_caller_is_manager();
@@ -104,23 +120,29 @@ mod multisig {
             true
         }
 
-
+        /// Get a transaction
+        /// trans_id:the id of transaction
         #[ink(message)]
         pub fn get_transaction(&self,trans_id: u64) -> Transaction {
             self.transactions.get(&trans_id).unwrap().clone()
         }
+        /// Add a multi sign on administrator
+        /// addr:the address of manager
         #[ink(message)]
         pub fn add_manage(&mut self,addr: AccountId) -> bool {
             self.ensure_caller_is_owner();
             self.manager.insert(addr, 1);
             true
         }
+        /// Remove a multi sign on administrator
+        /// addr:the address of manager
         #[ink(message)]
         pub fn remove_manage(&mut self,addr: AccountId) -> bool {
             self.ensure_caller_is_owner();
             self.manager.insert(addr, 0);
             true
         }
+        /// Get administrator list
         #[ink(message)]
         pub fn get_manage_list(&self) -> Vec<AccountId> {
             let mut manager_list = Vec::new();
@@ -132,6 +154,7 @@ mod multisig {
             }
             manager_list
         }
+        /// Get multi sign transaction list
         #[ink(message)]
         pub fn get_sign_list(&self) -> Vec<Transaction> {
             let mut sign_list = Vec::new();

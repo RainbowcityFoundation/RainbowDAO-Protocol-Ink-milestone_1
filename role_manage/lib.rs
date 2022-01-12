@@ -15,9 +15,12 @@ mod role_manage {
 
 
 
-    /// Defines the storage of your contract.
-    /// Add new fields to the below struct in order
-    /// to add new static storage fields to your contract.
+    /// Manage the role of the rainbow protocol
+    /// owner:the manager of contract
+    /// index:the number of role
+    /// role_map:HashMap of role index and name
+    /// role_privileges:HashMap of role name and privileges
+    /// user_role:HashMap of user  and roles
     #[ink(storage)]
     pub struct RoleManage {
         owner:AccountId,
@@ -45,6 +48,10 @@ mod role_manage {
             assert_eq!(self.owner, sender);
         }
 
+        /// Add a role
+        /// name : the name of role
+        /// # Panics
+        /// Only core contracts can be called
         #[ink(message)]
         pub fn add_role(&mut self, name: String) -> bool {
             self.only_core(Self::env().caller());
@@ -57,7 +64,7 @@ mod role_manage {
             self.index += 1;
             true
         }
-
+        /// Show all roles
         #[ink(message)]
         pub fn list_roles(&self) -> Vec<String> {
             let mut role_vec = Vec::new();
@@ -69,13 +76,17 @@ mod role_manage {
             }
             role_vec
         }
-
+        /// Get role by index
         #[ink(message)]
         pub fn query_role_by_index(&self, index: u64) -> String {
             self.role_map.get(&index).unwrap_or(&String::default()).clone()
         }
 
-
+        /// Add permissions to a role
+        /// name:role's name
+        /// privilege:privilege's name
+        /// # Panics
+        /// Only core contracts can be called
         #[ink(message)]
         pub fn role_insert_privilege(&mut self ,name:String,privilege:String) -> bool {
             self.only_core(Self::env().caller());
@@ -83,13 +94,17 @@ mod role_manage {
             role_privilege_list.push(privilege);
             true
         }
-
+        /// Show all privileges of role
         #[ink(message)]
         pub fn list_role_privileges(&self,name:String) -> Vec<String> {
            let v =  self.role_privileges.get(&name).unwrap().clone();
             v
         }
-
+        /// Add a role to user
+        /// user:the address of user
+        /// role:the name of role
+        /// # Panics
+        /// Only core contracts can be called
         #[ink(message)]
         pub fn add_user_role(&mut self,user:AccountId,role:String) -> bool {
             self.only_core(Self::env().caller());
@@ -97,6 +112,7 @@ mod role_manage {
             user_role_list.push(role);
             true
         }
+        /// Check if someone has a role
         #[ink(message)]
         pub fn check_user_role(&self,user:AccountId,role:String) -> bool {
             let list =  self.get_user_roles(user);
@@ -107,11 +123,14 @@ mod role_manage {
             }
             false
         }
+        /// Get all roles by user
+        /// user: the address of user
         #[ink(message)]
         pub fn get_user_roles(&self,user:AccountId) -> Vec<String> {
            let list =  self.user_role.get(&user).unwrap().clone();
             list
         }
+        /// Check if someone has a privilege
         #[ink(message)]
         pub fn check_user_privilege(&self,user:AccountId,privilege:String) -> bool {
             let list =  self.get_user_privilege(user);
@@ -122,6 +141,8 @@ mod role_manage {
             }
             false
         }
+        /// Get all privileges by user
+        /// user: the address of user
         #[ink(message)]
         pub fn get_user_privilege(&self,user:AccountId) -> Vec<String> {
             let mut privilege_vec = Vec::new();
