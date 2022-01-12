@@ -11,6 +11,10 @@ mod multisig_factory {
     use ink_storage::{collections::HashMap as StorageHashMap, };
     const CONTRACT_INIT_BALANCE: u128 = 1000 * 1_000_000_000_000;
 
+    /// Generate a multi sign management contract
+    /// multisign:HashMap of multisign index and addess
+    /// index:The multisign index
+    /// user_multisign:The user managed contracts
     #[ink(storage)]
     pub struct MultisigFactory {
         /// Stores a single `bool` value on the storage.
@@ -29,6 +33,10 @@ mod multisig_factory {
                 user_multisign:StorageHashMap::new()
             }
         }
+        /// Generate a multi sign management contract
+        /// multisig_hash:the hash of multisig contract
+        /// owners:the managers of multisig
+        /// min_sign_count:Minimum number of signatures
         #[ink(message)]
         pub fn new_multisig(
             &mut self,
@@ -55,6 +63,8 @@ mod multisig_factory {
             contract_addr
         }
 
+        /// Get the contract managed by a user
+        /// user: the address of user
         #[ink(message)]
         pub fn user_multisig(&self,user:AccountId) -> Vec<AccountId> {
             let list =  self.user_multisign.get(&user).unwrap().clone();

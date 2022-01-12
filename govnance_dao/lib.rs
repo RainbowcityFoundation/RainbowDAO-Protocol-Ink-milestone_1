@@ -38,7 +38,10 @@ mod govnance_dao {
         }
     }
 
-    /// Indicates whether a transaction is already confirmed or needs further confirmations.
+    /// The Voting details of a person
+    /// has_voted:Whether to vote
+    /// support:Is it supported
+    /// votes:Number of votes cast
     #[derive(scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout)]
     #[cfg_attr(
     feature = "std",
@@ -51,7 +54,18 @@ mod govnance_dao {
         votes: u128,
     }
 
-    /// Indicates whether a transaction is already confirmed or needs further confirmations.
+    /// Details of the proposal
+    /// proposal_id:proposal's id
+    /// title:proposal's title
+    /// desc:proposal's content
+    /// start_block:proposal's start block
+    /// end_block:proposal's end block
+    /// for_votes:Number of support votes
+    /// against_votes:Number of against votes
+    /// canceled:it is cancel
+    /// executed:it is executed
+    /// receipts:Voting details
+    /// transaction:Proposal implementation details
     #[derive(scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout)]
     #[cfg_attr(
     feature = "std",
@@ -137,7 +151,11 @@ mod govnance_dao {
                 rbd_addr,
             }
         }
-
+        /// Create a new proposal
+        /// #Fields
+        /// title:proposal's title
+        /// desc:proposal's content
+        /// transaction:proposal's transaction
         #[ink(message)]
         pub fn propose(&mut self, title: String, desc: String, transaction: Transaction) -> bool {
             let start_block = self.env().block_number() + self.voting_delay;
@@ -165,18 +183,16 @@ mod govnance_dao {
             });
             true
         }
+        /// Show state of proposal
+        /// proposal_id:proposal's id
         #[ink(message)]
         pub fn state(&self, proposal_id: u64) -> ProposalState {
             let block_number = self.env().block_number();
             let proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
-            if proposal.canceled { return ProposalState::Canceled; }
-            else if block_number <= proposal.start_block { return ProposalState::Pending; }
-            else if block_number <= proposal.end_block { return ProposalState::Active; }
-            else if proposal.for_votes <= proposal.against_votes { return ProposalState::Defeated; }
-            else if proposal.executed { return ProposalState::Executed; }
-            else if block_number > proposal.end_block { return ProposalState::Expired; }
-            else { return ProposalState::Queued; }
+            if proposal.canceled { return ProposalState::Canceled; } else if block_number <= proposal.start_block { return ProposalState::Pending; } else if block_number <= proposal.end_block { return ProposalState::Active; } else if proposal.for_votes <= proposal.against_votes { return ProposalState::Defeated; } else if proposal.executed { return ProposalState::Executed; } else if block_number > proposal.end_block { return ProposalState::Expired; } else { return ProposalState::Queued; }
         }
+        /// Set a proposal to cancel
+        /// proposal_id:proposal's id
         #[ink(message)]
         pub fn cancel(&self, proposal_id: u64) -> bool {
             let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
@@ -185,6 +201,8 @@ mod govnance_dao {
             proposal.canceled = true;
             true
         }
+        /// Implement a proposal
+        /// proposal_id:proposal's id
         #[ink(message)]
         pub fn exec(&mut self, proposal_id: u64) -> bool {
             let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
@@ -197,7 +215,7 @@ mod govnance_dao {
                     ExecutionInput::new(
                         proposal.transaction.selector.into()).
                         push_arg(CallInput(&proposal.transaction.input)
-                    ),
+                        ),
                 )
                 .returns::<()>()
                 .fire()
@@ -205,11 +223,13 @@ mod govnance_dao {
             proposal.executed = true;
             true
         }
-
+        /// Vote on a proposal
+        /// proposal_id:proposal's id
+        /// support:Is it supported
         #[ink(message)]
         pub fn cast_vote(&mut self, proposal_id: u64, support: bool) -> bool {
             let caller = Self::env().caller();
-            let default_receipts = Receipt{has_voted: false, support: false, votes: 0};
+            let default_receipts = Receipt { has_voted: false, support: false, votes: 0 };
             assert!(self.state(proposal_id) == ProposalState::Active);
             let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
             let mut receipts = proposal.receipts.get(&caller).unwrap_or(&default_receipts).clone();
@@ -225,11 +245,12 @@ mod govnance_dao {
             receipts.support = support;
             receipts.votes = votes;
             let mut temporary_receipts = proposal.receipts;
-            temporary_receipts.insert(caller,receipts);
+            temporary_receipts.insert(caller, receipts);
             proposal.receipts = temporary_receipts;
-            self.proposals.insert(proposal_id,proposal);
+            self.proposals.insert(proposal_id, proposal);
             true
         }
+        /// Show all proposals
         #[ink(message)]
         pub fn list_proposals(&self) -> Vec<Proposal> {
             let mut proposal_vec = Vec::new();
@@ -241,6 +262,7 @@ mod govnance_dao {
             }
             proposal_vec
         }
+        /// Show a proposal by id
         #[ink(message)]
         pub fn get_proposal_by_id(&self, proposal_id: u64) -> Proposal {
             let proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
@@ -272,7 +294,8 @@ mod govnance_dao {
                 selector: select,
                 input: vec,
                 transferred_value: 0,
-                gas_limit: 1000000 }
+                gas_limit: 1000000,
+            },
             );
             let proposal: Proposal = govnance_dao.get_proposal_by_id(1);
             assert!(proposal.title == String::from("test"));

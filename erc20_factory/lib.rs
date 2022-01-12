@@ -12,6 +12,11 @@ mod erc20_factory {
     use ink_storage::{collections::HashMap as StorageHashMap, };
     const CONTRACT_INIT_BALANCE: u128 = 1000 * 1_000_000_000_000;
 
+    /// Erc20Factory contract of rainbow protocol
+    /// #Fields
+    /// route_addr:The address  of route contract
+    /// length:Erc20 index
+    /// token_list:HashMap of Erc20 index and address
     #[ink(storage)]
     pub struct Erc20Factory {
         route_addr:AccountId,
@@ -28,6 +33,14 @@ mod erc20_factory {
                 token_list:StorageHashMap::new()
             }
         }
+       /// Generate a new erc20 token
+       /// #Fields
+       /// erc20_code_hash:The hash  of erc20 contract
+       /// initial_supply:Total supply
+       /// name:the name of token
+       /// symbol:the symbol of token
+       /// decimals:the decimals of token
+       /// owner:the manager of token
         #[ink(message)]
         pub fn new_erc20(
             &mut self,
@@ -55,14 +68,17 @@ mod erc20_factory {
             self.length+=1;
             contract_addr
         }
+        /// Get the number of erc20
         #[ink(message)]
         pub fn get_length(&self) -> u128 {
             self.length
         }
+        /// Get the erc20 by index
         #[ink(message)]
         pub fn get_token_by_index(&self,index:u128) -> AccountId {
             self.token_list.get(&index).copied().unwrap_or(AccountId::default())
         }
+        /// Show all tokens
         #[ink(message)]
         pub fn list_token(&self) -> Vec<AccountId> {
             let mut token_vec = Vec::new();
@@ -88,7 +104,7 @@ mod erc20_factory {
             erc20_instance.transfer_from(Self::env().caller(),to_account,fee);
             true
         }
-
+        /// Get the address of a contract
         #[ink(message)]
         pub fn get_contract_addr(&self,target_name:String) ->AccountId {
             let route_instance: RouteManage = ink_env::call::FromAccountId::from_account_id(self.route_addr);

@@ -12,6 +12,11 @@ mod route_manage {
     use ink_prelude::vec::Vec;
     use ink_prelude::collections::BTreeMap;
     use ink_storage::{collections::HashMap as StorageHashMap, };
+
+    /// Manage the route of the rainbow protocol
+    /// owner : the manager of contract
+    /// index : the index of all route
+    /// route_map:HashMap of route name and address
     #[ink(storage)]
     pub struct RouteManage {
         owner:AccountId,
@@ -32,6 +37,11 @@ mod route_manage {
             assert_eq!(self.owner, sender);
         }
 
+        /// Add a route
+        /// name : the name of route
+        /// value : the address of route
+        /// # Panics
+        /// Only core contracts can be called
         #[ink(message)]
         pub fn add_route(&mut self, name: String,value:AccountId) -> bool {
             self.only_core(Self::env().caller());
@@ -40,7 +50,7 @@ mod route_manage {
             self.index += 1;
             true
         }
-
+        /// Show all route
         #[ink(message)]
         pub fn list_route(&self) -> BTreeMap<String,AccountId> {
             // let mut route_vec = Vec::new();
@@ -57,11 +67,17 @@ mod route_manage {
             }
             hash_map
         }
-
+        /// Get a route by name
+        /// name:the name of route
         #[ink(message)]
         pub fn query_route_by_name(&self, name: String) -> AccountId {
             self.route_map.get(&name).copied().unwrap_or(AccountId::default())
         }
+        /// Change routing address
+        /// name : the name of route
+        /// value : the address of route
+        /// # Panics
+        /// Only core contracts can be called
         #[ink(message)]
         pub fn change_route(&mut self,name:String,value:AccountId) -> bool {
             self.only_core(Self::env().caller());

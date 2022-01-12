@@ -16,7 +16,7 @@ mod erc20 {
         }
     };
 
-    /// Indicates whether a transaction is already confirmed or needs further confirmations.
+     /// It records how many tickets there are in a block
     #[derive(scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout)]
     #[cfg_attr(
     feature = "std",
@@ -28,7 +28,7 @@ mod erc20 {
         from_block:u32,
         votes:u128
     }
-    /// A simple ERC-20 contract.
+    /// A  ERC-20 contract.
     #[ink(storage)]
     pub struct Erc20 {
         /// Total token supply.
@@ -38,12 +38,19 @@ mod erc20 {
         /// Mapping of the token amount which an account is allowed to withdraw
         /// from another account.
         allowances: StorageHashMap<(AccountId, AccountId), Balance>,
+        /// The name of token
         name: String,
+        /// The symbol of token
         symbol: String,
+        /// The decimals of token
         decimals: u8,
+        /// The manager of token
         owner: AccountId,
+        /// The points of user
         num_check_points:StorageHashMap<AccountId,u32>,
+        /// The number of votes at a point is recorded
         check_points:StorageHashMap<(AccountId, u32), Checkpoint>,
+        /// Delegation information of ticket
         delegates:StorageHashMap<AccountId,AccountId>,
     }
 
@@ -139,6 +146,7 @@ mod erc20 {
             instance.move_delegates(AccountId::default(), owner, initial_supply);
             instance
         }
+        /// Displays the details of the token
         #[ink(message)]
         pub fn query_info(&self) -> TokenInfo {
             TokenInfo {
@@ -280,12 +288,19 @@ mod erc20 {
         //     true
         // }
 
+        /// Get current votes
+        /// # Fields
+        /// user:the address of user
         #[ink(message)]
         pub fn get_current_votes(&self,user:AccountId) -> u128 {
             let default_checkpoint = Checkpoint{from_block:0, votes:0};
             let n_checkpoints = self.num_check_points.get(&user).unwrap_or(&0).clone();
             return if n_checkpoints > 0 {  let check_point:Checkpoint = self.check_points.get(&(user,n_checkpoints - 1)).unwrap_or(&default_checkpoint).clone();check_point.votes}  else { 0 } ;
         }
+        /// Get the number of votes for a block
+        /// # Fields
+        /// account:the address of user
+        /// block_number : the block number
         #[ink(message)]
         pub fn get_prior_votes(&self,account:AccountId,block_number:u32) -> u128 {
             assert!(block_number <  self.env().block_number());
@@ -319,6 +334,9 @@ mod erc20 {
             let outer_cp:Checkpoint = self.check_points.get(&(account,lower)).unwrap_or(&default_checkpoint).clone();
             return outer_cp.votes;
         }
+        /// Delegate votes to others
+        /// # Fields
+        /// delegatee:the address of others
         #[ink(message)]
         pub fn delegate(&mut self,delegatee:AccountId) -> bool {
             let delegator = self.env().caller();
@@ -334,14 +352,24 @@ mod erc20 {
 
             true
         }
+        /// Get user's delegation information
+       /// # Fields
+       /// delegator:the address of user
         #[ink(message)]
         pub fn get_user_delegates(&self,delegator:AccountId) -> AccountId {
             self.delegates.get(&delegator).unwrap_or(&AccountId::default()).clone()
         }
+        /// Get user's points
+        /// # Fields
+        /// user:the address of user
         #[ink(message)]
         pub fn get_user_num_check_points(&self,user:AccountId) -> u32 {
             self.num_check_points.get(&user).unwrap_or(&0).clone()
         }
+        /// Get user's check_points
+        /// # Fields
+        /// account:the address of user
+        /// checkpoint:the point of user
         #[ink(message)]
         pub fn get_user_check_points(&self,account:AccountId,checkpoint:u32) -> Checkpoint {
             let default_checkpoint = Checkpoint{from_block:0, votes:0};

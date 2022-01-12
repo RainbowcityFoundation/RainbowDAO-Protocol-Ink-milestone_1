@@ -14,7 +14,14 @@ mod users_manage {
             SpreadLayout,
         }
     };
-    /// Indicates whether a transaction is already confirmed or needs further confirmations.
+    /// User details
+    /// id:the id of user
+    /// nickname:the nickname of user
+    /// profile:the profile of user
+    /// code:the code of user
+    /// address:the address of user
+    /// referer:the invitee of user
+    /// childs : all subordinates of user
     #[derive(scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout)]
     #[cfg_attr(
     feature = "std",
@@ -32,7 +39,10 @@ mod users_manage {
         childs:Vec<AccountId>
     }
 
-
+    /// It manages users of the entire rainbow protocol
+    /// user_info :HashMap of user address and user detail
+    /// code_user :HashMap of user code and user address
+    /// length : the number of users
     #[ink(storage)]
     pub struct UsersManage {
         user_info:StorageHashMap<AccountId,User>,
@@ -50,6 +60,12 @@ mod users_manage {
                 length:0,
             }
         }
+        /// Join the rainbow agreement
+        /// invitation_code:the code of user
+        /// name:the name of user
+        /// user_profile:the profile of user
+        /// # Panics
+        /// This invitation_code can be left blank. The default value is 0
         #[ink(message)]
         pub fn join(&mut self,invitation_code:u128,name:String,user_profile:String) -> bool {
             assert_eq!(self.length + 1 > self.length, true);
@@ -78,11 +94,15 @@ mod users_manage {
             }
             true
         }
+        /// Get the superior of the user
+        /// user : address of user
         #[ink(message)]
         pub fn get_user_referer(&self,user:AccountId) -> AccountId {
             let user_info : User =  self.user_info.get(&user).unwrap().clone();
             return user_info.referer;
         }
+        /// Check whether the user exists
+        /// user : address of user
         #[ink(message)]
         pub fn exists_user(&self,user:AccountId) -> bool {
             let user_info = User{
@@ -97,11 +117,13 @@ mod users_manage {
             let exists_user =  self.user_info.get(&user).unwrap_or(&user_info);
             return exists_user.id !=0 ;
         }
-
+        /// Get a user by code
+        /// invitation_code : code af user
         #[ink(message)]
         pub fn get_user_by_code(&self,invitation_code:u128) -> AccountId {
             self.code_user.get(&invitation_code).copied().unwrap_or(AccountId::default())
         }
+        /// Show all users
         #[ink(message)]
         pub fn list_user(&self) -> Vec<User> {
             let mut user_vec = Vec::new();
@@ -113,6 +135,8 @@ mod users_manage {
             }
             user_vec
         }
+        /// Get a user detail
+        /// user : address of user
         #[ink(message)]
         pub fn get_user_info(&self,user:AccountId) -> User {
             self.user_info.get(&user).unwrap().clone()

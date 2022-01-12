@@ -13,15 +13,16 @@ mod authority_management {
     use ink_storage::{collections::HashMap as StorageHashMap, };
 
 
-    /// Defines the storage of your contract.
-    /// Add new fields to the below struct in order
-    /// to add new static storage fields to your contract.
+    /// Authority management contract of rainbow protocol
+    /// #Fields
+    /// owner:The manager of this contract
+    /// index:Authority index
+    /// privilege_map:HashMap of authority index and name
     #[ink(storage)]
     pub struct AuthorityManagement {
         owner:AccountId,
         index:u64,
         privilege_map:StorageHashMap<u64,String>,
-
     }
 
     impl AuthorityManagement {
@@ -38,7 +39,11 @@ mod authority_management {
         fn only_core(&self,sender:AccountId) {
             assert_eq!(self.owner, sender);
         }
-
+       /// Add a new privilege
+       /// #Fields
+       /// name:Name of the privilege
+       /// #Panics
+       /// Only core contracts can be called
         #[ink(message)]
         pub fn add_privilege(&mut self, name: String) -> bool {
             self.only_core(Self::env().caller());
@@ -47,7 +52,7 @@ mod authority_management {
             self.index += 1;
             true
         }
-
+        /// All privilege names are displayed
         #[ink(message)]
         pub fn list_privileges(&self) -> Vec<String> {
             let mut privilege_vec = Vec::new();
@@ -59,7 +64,9 @@ mod authority_management {
             }
             privilege_vec
         }
-
+        /// Query the name of the privilege by index
+        /// #Fields
+        /// index:Privilege index
         #[ink(message)]
         pub fn query_privilege_by_index(&self, index: u64) -> String {
             self.privilege_map.get(&index).unwrap().clone()
