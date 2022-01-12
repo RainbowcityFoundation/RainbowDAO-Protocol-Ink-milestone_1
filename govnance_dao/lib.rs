@@ -189,7 +189,13 @@ mod govnance_dao {
         pub fn state(&self, proposal_id: u64) -> ProposalState {
             let block_number = self.env().block_number();
             let proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
-            if proposal.canceled { return ProposalState::Canceled; } else if block_number <= proposal.start_block { return ProposalState::Pending; } else if block_number <= proposal.end_block { return ProposalState::Active; } else if proposal.for_votes <= proposal.against_votes { return ProposalState::Defeated; } else if proposal.executed { return ProposalState::Executed; } else if block_number > proposal.end_block { return ProposalState::Expired; } else { return ProposalState::Queued; }
+            if proposal.canceled { return ProposalState::Canceled; }
+            else if block_number <= proposal.start_block { return ProposalState::Pending; }
+            else if block_number <= proposal.end_block { return ProposalState::Active; }
+            else if proposal.for_votes <= proposal.against_votes { return ProposalState::Defeated; }
+            else if proposal.executed { return ProposalState::Executed; }
+            else if block_number > proposal.end_block { return ProposalState::Expired; }
+            else { return ProposalState::Queued; }
         }
         /// Set a proposal to cancel
         /// proposal_id:proposal's id
