@@ -8,7 +8,6 @@ mod users_manage {
     use ink_prelude::vec::Vec;
     use ink_storage::{
         collections::HashMap as StorageHashMap,
-        lazy::Lazy,
         traits::{
             PackedLayout,
             SpreadLayout,

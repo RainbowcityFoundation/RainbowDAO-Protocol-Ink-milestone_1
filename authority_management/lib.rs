@@ -5,11 +5,11 @@ use ink_lang as ink;
 pub use self::authority_management::{
     AuthorityManagement,
 };
+#[allow(unused_imports)]
 #[ink::contract]
 mod authority_management {
     use alloc::string::String;
     use ink_prelude::vec::Vec;
-    use ink_prelude::collections::BTreeMap;
     use ink_storage::{collections::HashMap as StorageHashMap, };
 
 
@@ -87,9 +87,6 @@ mod authority_management {
 
         #[ink::test]
         fn init_works() {
-            let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                    .expect("Cannot get accounts");
             let mut authority_management = AuthorityManagement::new();
             authority_management.add_privilege(String::from("test"));
             assert!(authority_management.query_privilege_by_index(0)== String::from("test"));

@@ -36,9 +36,7 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
-    "route_manage/std",
     "erc20/std",
-#    "core/std",
 ]
 ink-as-dependency = []
 [profile.release]

@@ -4,12 +4,11 @@ use ink_lang as ink;
 pub use self::route_manage::{
     RouteManage,
 };
-
+#[allow(unused_imports)]
 #[ink::contract]
 mod route_manage {
 
     use alloc::string::String;
-    use ink_prelude::vec::Vec;
     use ink_prelude::collections::BTreeMap;
     use ink_storage::{collections::HashMap as StorageHashMap, };
 

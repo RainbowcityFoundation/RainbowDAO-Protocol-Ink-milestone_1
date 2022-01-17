@@ -5,9 +5,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod multisig_factory {
     use multisig::Multisig;
-    use alloc::string::String;
     use ink_prelude::vec::Vec;
-    use ink_prelude::collections::BTreeMap;
     use ink_storage::{collections::HashMap as StorageHashMap, };
     const CONTRACT_INIT_BALANCE: u128 = 1000 * 1_000_000_000_000;
 
@@ -17,14 +15,12 @@ mod multisig_factory {
     /// user_multisign:The user managed contracts
     #[ink(storage)]
     pub struct MultisigFactory {
-        /// Stores a single `bool` value on the storage.
         multisign:StorageHashMap<u64,AccountId>,
         index:u64,
         user_multisign:StorageHashMap<AccountId,Vec<AccountId>>,
     }
 
     impl MultisigFactory {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {

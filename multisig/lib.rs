@@ -4,16 +4,15 @@ pub use self::multisig::{
     Multisig,
 };
 use ink_lang as ink;
-
+#[allow(unused_imports)]
+#[allow(unused_must_use)]
 #[ink::contract]
 mod multisig {
-    use alloc::string::String;
     use ink_prelude::vec::Vec;
     use ink_prelude::collections::BTreeMap;
     use ink_storage::{
         collections::{
             HashMap as StorageHashMap,
-            Vec as StorageVec,
         },
         traits::{
             PackedLayout,
@@ -84,7 +83,6 @@ mod multisig {
         #[ink(message)]
         pub fn creat_transfer(&mut self,to: AccountId ,amount: u64) -> bool {
             self.ensure_caller_is_manager();
-            let from = self.env().caller();
             assert_eq!(self.env().balance() >= amount.into(), true);
             self.transactions.insert(self.transaction_idx,
                 Transaction{

@@ -4,11 +4,10 @@ pub use self::income_category::{
     IncomeCategory
 };
 use ink_lang as ink;
-
+#[allow(unused_imports)]
 #[ink::contract]
 mod income_category {
     use alloc::string::String;
-    use ink_prelude::vec::Vec;
     use ink_prelude::collections::BTreeMap;
     use ink_storage::{
         collections::HashMap as StorageHashMap,
@@ -43,7 +42,6 @@ mod income_category {
     }
 
     impl IncomeCategory {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new(owner:AccountId) -> Self {
             Self {
