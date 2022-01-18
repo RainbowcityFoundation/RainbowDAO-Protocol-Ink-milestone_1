@@ -2,20 +2,14 @@
 extern crate alloc;
 
 use ink_lang as ink;
-
+#[allow(unused_imports)]
 #[ink::contract]
 mod govnance_dao {
     use ink_env::call::{
         build_call,
-        utils::ReturnType,
         ExecutionInput,
     };
-
-    use route_manage::RouteManage;
-    use erc20::Erc20;
-    // use core::Core;
     use alloc::string::String;
-
     use ink_prelude::vec::Vec;
     use ink_prelude::collections::BTreeMap;
     use ink_storage::{
@@ -26,10 +20,9 @@ mod govnance_dao {
         collections::HashMap as StorageHashMap,
     };
     use scale::Output;
+    use erc20::Erc20;
 
-    /// A wrapper that allows us to encode a blob of bytes.
-  ///
-  /// We use this to pass the set of untyped (bytes) parameters to the `CallBuilder`.
+
     struct CallInput<'a>(&'a [u8]);
 
     impl<'a> scale::Encode for CallInput<'a> {
@@ -87,7 +80,7 @@ mod govnance_dao {
         transaction: Transaction,
     }
 
-    /// Indicates whether a transaction is already confirmed or needs further confirmations.
+
     #[derive(scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout)]
     #[cfg_attr(
     feature = "std",
@@ -213,7 +206,7 @@ mod govnance_dao {
         pub fn exec(&mut self, proposal_id: u64) -> bool {
             let mut proposal: Proposal = self.proposals.get(&proposal_id).unwrap().clone();
             assert!(self.state(proposal_id) == ProposalState::Queued);
-            let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
+            build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
                 .callee(proposal.transaction.callee)
                 .gas_limit(proposal.transaction.gas_limit)
                 .transferred_value(proposal.transaction.transferred_value)

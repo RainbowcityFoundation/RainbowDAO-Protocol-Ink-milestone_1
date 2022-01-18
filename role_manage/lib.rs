@@ -6,11 +6,11 @@ pub use self::role_manage::{
 };
 use ink_lang as ink;
 
+#[allow(unused_imports)]
 #[ink::contract]
 mod role_manage {
     use alloc::string::String;
     use ink_prelude::vec::Vec;
-    use ink_prelude::collections::BTreeMap;
     use ink_storage::{collections::HashMap as StorageHashMap, };
 
 
@@ -167,9 +167,6 @@ mod role_manage {
 
         #[ink::test]
         fn add_role_works() {
-            let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                    .expect("Cannot get accounts");
             let mut role_manage = RoleManage::new();
             role_manage.add_role(String::from("test"));
             assert!(role_manage.query_role_by_index(0)== String::from("test"));
